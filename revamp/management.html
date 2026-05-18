@@ -1,0 +1,904 @@
+<!doctype html>
+<html lang="uk" data-theme="light">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>ShopFlow — Управління магазином</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+  <style>
+    :root {
+      --bg: #f0f7ff;
+      --surface: #ffffff;
+      --surface2: #f4f9ff;
+      --border: #c5ddf6;
+      --text: #0b1e38;
+      --text2: #3a5a82;
+      --accent: #0872e8;
+      --accent2: #3b99ff;
+      --accent-light: #dbeafe;
+      --shadow: rgba(8,114,232,0.10);
+      --card-shadow: 0 2px 16px rgba(8,114,232,0.07);
+      --nav-bg: rgba(255,255,255,0.92);
+      --green: #059669;
+      --green-light: #d1fae5;
+      --green-text: #065f46;
+      --yellow-light: #fffbeb;
+      --yellow-text: #92400e;
+      --red: #ef4444;
+      --red-light: #fee2e2;
+      --red-text: #7f1d1d;
+      --blue-light: #eff6ff;
+      --blue-text: #0c4a6e;
+      --modal-bg: rgba(2,6,23,0.5);
+      --input-border: #c5ddf6;
+      --nav-active: #0872e8;
+    }
+    [data-theme="dark"] {
+      --bg: #060e1c;
+      --surface: #0f2040;
+      --surface2: #142848;
+      --border: #1e3a5f;
+      --text: #e8f2ff;
+      --text2: #7eb4f0;
+      --accent: #3b99ff;
+      --accent2: #60b4ff;
+      --accent-light: rgba(59,153,255,0.15);
+      --shadow: rgba(59,153,255,0.15);
+      --card-shadow: 0 2px 20px rgba(0,0,0,0.3);
+      --nav-bg: rgba(6,14,28,0.92);
+      --green-light: rgba(5,150,105,0.18);
+      --green-text: #34d399;
+      --yellow-light: rgba(217,119,6,0.18);
+      --yellow-text: #fbbf24;
+      --red-light: rgba(239,68,68,0.18);
+      --red-text: #f87171;
+      --blue-light: rgba(59,153,255,0.12);
+      --blue-text: #60b4ff;
+      --modal-bg: rgba(0,0,0,0.7);
+      --input-border: #1e3a5f;
+    }
+
+    /* ---- Reset & base ---- */
+    *{box-sizing:border-box}
+    body{margin:0;font-family:'DM Sans', ui-sans-serif, system-ui;color:var(--text);background:var(--bg);transition:background .3s,color .3s}
+    button{cursor:pointer;font-family:'DM Sans',sans-serif}
+
+    /* ---- TOP NAV ---- */
+    .top-nav {
+      position:sticky;top:0;z-index:200;
+      background:var(--nav-bg);
+      backdrop-filter:blur(16px);
+      border-bottom:1px solid var(--border);
+      display:flex;align-items:center;justify-content:space-between;
+      padding:0 24px;height:64px;
+      transition:background .3s,border .3s;
+    }
+    .top-nav .brand{display:flex;align-items:center;gap:10px;text-decoration:none}
+    .brand-logo{width:34px;height:34px;border-radius:9px;background:linear-gradient(135deg,var(--accent),var(--accent2));display:flex;align-items:center;justify-content:center;font-size:17px;box-shadow:0 3px 10px var(--shadow)}
+    .brand-name{font-family:'Sora',sans-serif;font-weight:800;font-size:18px;color:var(--accent)}
+    .top-nav-links{display:flex;align-items:center;gap:4px}
+    .top-nav-links a{text-decoration:none;color:var(--text2);font-size:13px;font-weight:500;padding:7px 13px;border-radius:8px;transition:background .2s,color .2s}
+    .top-nav-links a:hover{background:var(--accent-light);color:var(--accent)}
+    .top-nav-links a.active{color:var(--accent);background:var(--accent-light)}
+    .top-nav-right{display:flex;align-items:center;gap:8px}
+    .theme-toggle{width:38px;height:38px;border-radius:9px;background:var(--surface2);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:16px;transition:all .2s}
+    .theme-toggle:hover{background:var(--accent-light);border-color:var(--accent)}
+
+    /* ---- Layout ---- */
+    header{background:var(--surface);border-bottom:1px solid var(--border);padding:14px 24px;display:flex;align-items:center;justify-content:space-between}
+    header .brand-inner{display:flex;align-items:center;gap:12px}
+    header h1{font-family:'Sora',sans-serif;font-size:18px;margin:0;color:var(--text)}
+    .app{display:flex;min-height:calc(100vh - 64px - 66px)}
+    aside{width:240px;background:var(--surface);padding:14px;border-right:1px solid var(--border);transition:background .3s}
+    main{flex:1;padding:24px;background:var(--bg);transition:background .3s}
+
+    /* ---- Sidebar ---- */
+    .nav-btn{display:flex;align-items:center;gap:10px;width:100%;padding:10px 12px;border-radius:10px;border:none;background:transparent;color:var(--text2);text-align:left;font-size:14px;font-weight:500;transition:all .2s}
+    .nav-btn:hover{background:var(--accent-light);color:var(--accent)}
+    .nav-btn.active{background:var(--accent);color:#fff}
+
+    /* ---- Cards ---- */
+    .grid{display:grid;gap:16px}
+    .grid.cols-4{grid-template-columns:repeat(1,1fr)}
+    @media(min-width:900px){.grid.cols-4{grid-template-columns:repeat(4,1fr)}}
+    .card{background:var(--surface);padding:18px;border-radius:14px;box-shadow:var(--card-shadow);border:1px solid var(--border);transition:background .3s,border .3s}
+
+    /* ---- Tables ---- */
+    table{width:100%;border-collapse:collapse}
+    thead th{background:var(--surface2);text-align:left;padding:12px;font-size:12px;color:var(--text2);font-weight:700;text-transform:uppercase;letter-spacing:.05em}
+    tbody td{padding:12px;border-top:1px solid var(--border);color:var(--text);font-size:14px}
+    tbody tr:hover{background:var(--surface2)}
+
+    /* ---- Buttons ---- */
+    .btn{padding:9px 14px;border-radius:10px;border:none;font-size:13px;font-weight:600;transition:opacity .2s,transform .2s}
+    .btn:hover{opacity:.87;transform:translateY(-1px)}
+    .btn.primary{background:var(--accent);color:#fff}
+    .btn.green{background:#16a34a;color:#fff}
+    .btn.red{background:#ef4444;color:#fff}
+    .btn.ghost{background:transparent;border:1px solid var(--border);color:var(--text)}
+    .btn.ghost:hover{background:var(--accent-light);border-color:var(--accent);color:var(--accent)}
+
+    /* ---- Modal ---- */
+    .modal-backdrop{position:fixed;inset:0;background:var(--modal-bg);display:flex;align-items:center;justify-content:center;z-index:1000}
+    .modal{background:var(--surface);width:96%;max-width:920px;border-radius:14px;padding:20px;max-height:90vh;overflow:auto;border:1px solid var(--border)}
+    .modal h3{margin:0 0 12px 0;font-family:'Sora',sans-serif;color:var(--text)}
+    .form-grid{display:grid;gap:12px}
+    .form-grid.cols-2{grid-template-columns:1fr}
+    @media(min-width:720px){.form-grid.cols-2{grid-template-columns:1fr 1fr}}
+    label{display:block;font-size:13px;color:var(--text2);margin-bottom:6px;font-weight:600}
+    input[type="text"],input[type="tel"],input[type="email"],input[type="number"],input[type="date"],select,textarea{width:100%;padding:10px;border-radius:8px;border:1px solid var(--input-border);background:var(--surface2);color:var(--text);font-family:'DM Sans',sans-serif;transition:border .2s}
+    input:focus,select:focus,textarea:focus{outline:none;border-color:var(--accent)}
+    textarea{resize:vertical}
+    .modal-footer{display:flex;justify-content:flex-end;gap:10px;padding-top:12px;border-top:1px solid var(--border);margin-top:12px}
+
+    /* ---- Quick actions ---- */
+    .quick-actions{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+
+    /* ---- Notifications ---- */
+    .notification{position:fixed;top:80px;right:18px;padding:12px 18px;border-radius:12px;color:#fff;z-index:1100;font-weight:600;box-shadow:0 6px 24px rgba(0,0,0,0.2);animation:slideIn .3s ease}
+    @keyframes slideIn{from{transform:translateX(60px);opacity:0}to{transform:translateX(0);opacity:1}}
+    .notification.success{background:#16a34a}
+    .notification.error{background:#ef4444}
+
+    /* ---- Small helpers ---- */
+    .muted{color:var(--text2);font-size:13px}
+    .pill{display:inline-block;padding:5px 9px;border-radius:999px;font-size:11px;font-weight:700}
+    .pill.green{background:var(--green-light);color:var(--green-text)}
+    .pill.yellow{background:var(--yellow-light);color:var(--yellow-text)}
+    .pill.blue{background:var(--blue-light);color:var(--blue-text)}
+    .pill.red{background:var(--red-light);color:var(--red-text)}
+
+    /* ---- icon circle ---- */
+    .icon-circle{width:36px;height:36px;border-radius:8px;background:var(--accent-light);display:inline-flex;align-items:center;justify-content:center;font-size:20px}
+
+    /* ---- responsive tweaks ---- */
+    @media(max-width:880px){aside{display:none}.app{flex-direction:column}header{padding:12px}}
+    @media(max-width:640px){.top-nav-links{display:none}}
+  </style>
+</head>
+<body>
+  <!-- TOP NAV -->
+  <nav class="top-nav">
+    <a href="index.html" class="brand">
+      <div class="brand-logo">🏪</div>
+      <span class="brand-name">ShopFlow</span>
+    </a>
+    <div class="top-nav-links">
+      <a href="index.html">Головна</a>
+      <a href="management.html" class="active">Управління</a>
+      <a href="nomenclature.html">Номенклатура</a>
+      <a href="analytics.html">Аналітика</a>
+    </div>
+    <div class="top-nav-right">
+      <button class="theme-toggle" id="themeToggle" title="Змінити тему">🌙</button>
+      <button class="btn ghost" id="btnNotifications">🔔</button>
+      <button class="btn ghost">⚙️</button>
+    </div>
+  </nav>
+
+  <header>
+    <div class="brand-inner">
+      <div class="icon-circle">🏪</div>
+      <div>
+        <h1>Управління магазином</h1>
+        <div class="muted">Облік товарів, замовлень та клієнтів</div>
+      </div>
+    </div>
+  </header>
+
+  <div class="app">
+    <aside>
+      <nav>
+        <button class="nav-btn active" data-tab="dashboard">📊 Дашборд</button>
+        <button class="nav-btn" data-tab="products">📦 Товари</button>
+        <button class="nav-btn" data-tab="orders">📋 Замовлення</button>
+        <button class="nav-btn" data-tab="customers">👥 Клієнти</button>
+        <button class="nav-btn" data-tab="inventory">📈 Інвентаризація</button>
+        <button class="nav-btn" data-tab="reports">📊 Звіти</button>
+      </nav>
+    </aside>
+
+    <main>
+      <!-- DASHBOARD -->
+      <section id="tab-dashboard">
+        <h2 style="font-size:26px;margin:0 0 12px 0">Дашборд</h2>
+        <div class="grid cols-4" style="margin-bottom:16px">
+          <div class="card">
+            <div style="display:flex;justify-content:space-between;align-items:center">
+              <div>
+                <div class="muted">Товарів у каталозі</div>
+                <div id="stat-products" style="font-size:22px;font-weight:700">0</div>
+              </div>
+              <div style="font-size:28px">📦</div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div style="display:flex;justify-content:space-between;align-items:center">
+              <div>
+                <div class="muted">Замовлень сьогодні</div>
+                <div id="stat-today" style="font-size:22px;font-weight:700">0</div>
+              </div>
+              <div style="font-size:28px">📋</div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div style="display:flex;justify-content:space-between;align-items:center">
+              <div>
+                <div class="muted">Клієнти</div>
+                <div id="stat-customers" style="font-size:22px;font-weight:700">0</div>
+              </div>
+              <div style="font-size:28px">👥</div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div style="display:flex;justify-content:space-between;align-items:center">
+              <div>
+                <div class="muted">На обробці</div>
+                <div id="stat-pending" style="font-size:22px;font-weight:700">0</div>
+              </div>
+              <div style="font-size:28px">⏳</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="grid" style="grid-template-columns:1fr;gap:16px">
+          <div class="card">
+            <h3 style="margin-top:0">Останні замовлення</h3>
+            <div id="recent-orders"></div>
+          </div>
+
+          <div class="card">
+            <h3 style="margin-top:0">Швидкі дії</h3>
+            <div class="quick-actions">
+              <button class="btn primary" id="openAddCustomer">➕ Новий клієнт</button>
+              <button class="btn green" id="openAddOrder">📋 Нове замовлення</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- PRODUCTS -->
+      <section id="tab-products" style="display:none">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+          <h2 style="margin:0">Товари</h2>
+          <div>
+            <button class="btn primary" id="openAddProductTop">➕ Додати товар</button>
+          </div>
+        </div>
+
+        <div class="card">
+          <table>
+            <thead>
+              <tr>
+                <th>Назва товару</th>
+                <th>Категорія</th>
+                <th>Ціна</th>
+                <th>Запас</th>
+                <th>Статус</th>
+                <th>Дії</th>
+              </tr>
+            </thead>
+            <tbody id="products-table"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- ORDERS -->
+      <section id="tab-orders" style="display:none">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+          <h2 style="margin:0">Замовлення</h2>
+          <div>
+            <button class="btn green" id="openAddOrderTop">📋 +Створити замовлення</button>
+          </div>
+        </div>
+
+        <div class="card">
+          <table>
+            <thead>
+              <tr>
+                <th>Номер замовлення</th>
+                <th>Клієнт</th>
+                <th>Товари</th>
+                <th>Сума</th>
+                <th>Дата</th>
+                <th>Статус</th>
+              </tr>
+            </thead>
+            <tbody id="orders-table"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- CUSTOMERS -->
+      <section id="tab-customers" style="display:none">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+          <h2 style="margin:0">Клієнти</h2>
+          <div>
+            <button class="btn primary" id="openAddCustomerTop">➕ Додати клієнта</button>
+          </div>
+        </div>
+
+        <div class="card" id="customers-list"></div>
+      </section>
+
+      <!-- INVENTORY -->
+      <section id="tab-inventory" style="display:none">
+        <h2 style="margin:0 0 12px 0">Інвентаризація</h2>
+        
+        <div class="grid cols-4" style="margin-bottom:16px">
+          <div class="card">
+            <div style="display:flex;justify-content:space-between;align-items:center">
+              <div>
+                <div class="muted">Всього одиниць</div>
+                <div id="inv-total" style="font-size:22px;font-weight:700">0</div>
+              </div>
+              <div style="font-size:28px">📦</div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div style="display:flex;justify-content:space-between;align-items:center">
+              <div>
+                <div class="muted">Низький запас</div>
+                <div id="inv-low" style="font-size:22px;font-weight:700">0</div>
+              </div>
+              <div style="font-size:28px">⚠️</div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div style="display:flex;justify-content:space-between;align-items:center">
+              <div>
+                <div class="muted">Вартість запасу</div>
+                <div id="inv-value" style="font-size:22px;font-weight:700">₴0</div>
+              </div>
+              <div style="font-size:28px">💰</div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div style="display:flex;justify-content:space-between;align-items:center">
+              <div>
+                <div class="muted">Категорії</div>
+                <div id="inv-categories" style="font-size:22px;font-weight:700">0</div>
+              </div>
+              <div style="font-size:28px">🏷️</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <table>
+            <thead>
+              <tr>
+                <th>Товар</th>
+                <th>Категорія</th>
+                <th>Мінімум</th>
+                <th>Поточно</th>
+                <th>Максимум</th>
+                <th>Статус</th>
+              </tr>
+            </thead>
+            <tbody id="inventory-table"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- REPORTS -->
+      <section id="tab-reports" style="display:none">
+        <h2 style="margin:0 0 12px 0">Звіти</h2>
+        
+        <div class="grid cols-4" style="margin-bottom:16px">
+          <div class="card">
+            <div style="display:flex;justify-content:space-between;align-items:center">
+              <div>
+                <div class="muted">Загальний дохід</div>
+                <div id="rep-revenue" style="font-size:22px;font-weight:700">₴0</div>
+              </div>
+              <div style="font-size:28px">💵</div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div style="display:flex;justify-content:space-between;align-items:center">
+              <div>
+                <div class="muted">Всього замовлень</div>
+                <div id="rep-orders" style="font-size:22px;font-weight:700">0</div>
+              </div>
+              <div style="font-size:28px">📋</div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div style="display:flex;justify-content:space-between;align-items:center">
+              <div>
+                <div class="muted">Середній чек</div>
+                <div id="rep-avg" style="font-size:22px;font-weight:700">₴0</div>
+              </div>
+              <div style="font-size:28px">📊</div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div style="display:flex;justify-content:space-between;align-items:center">
+              <div>
+                <div class="muted">Топовий товар</div>
+                <div id="rep-top" style="font-size:16px;font-weight:700">-</div>
+              </div>
+              <div style="font-size:28px">🏆</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3>Звіт по категоріям</h3>
+          <table>
+            <thead>
+              <tr>
+                <th>Категорія</th>
+                <th>Товарів</th>
+                <th>Запас</th>
+                <th>Вартість</th>
+              </tr>
+            </thead>
+            <tbody id="reports-table"></tbody>
+          </table>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <!-- MODALS -->
+  <div id="modalContainer"></div>
+
+  <!-- NOTIFICATION -->
+  <div id="notificationContainer"></div>
+
+  <script>
+    // -------------------- ДЕМО-ДАНІ --------------------
+    const products = [
+      { id: 1, name: 'Футболка чорна XL', category: 'Одяг', price: 299, quantity: 45, minStock: 10, maxStock: 100, soldCount: 23 },
+      { id: 2, name: 'Джинси сині 32', category: 'Одяг', price: 899, quantity: 8, minStock: 5, maxStock: 30, soldCount: 15 },
+      { id: 3, name: 'Кросівки спортивні', category: 'Взуття', price: 1299, quantity: 12, minStock: 5, maxStock: 25, soldCount: 8 },
+      { id: 4, name: 'Шапка чорна', category: 'Аксесуари', price: 199, quantity: 0, minStock: 5, maxStock: 20, soldCount: 32 },
+      { id: 5, name: 'Гарнітура Bluetooth', category: 'Електроніка', price: 599, quantity: 3, minStock: 2, maxStock: 10, soldCount: 5 },
+    ];
+
+    const customers = [
+      { id: 1, fullName: 'Іван Петренко', phone: '+380501234567', email: 'ivan@example.com', address: 'вул. Хрещатик, 10', joinDate: '2024-09-15', totalSpent: 4590 },
+      { id: 2, fullName: 'Марія Шевченко', phone: '+380502345678', email: 'maria@example.com', address: 'вул. Грушевського, 5', joinDate: '2024-08-20', totalSpent: 2890 },
+      { id: 3, fullName: 'Олег Сидоренко', phone: '+380503456789', email: 'oleg@example.com', address: 'вул. Котельникова, 7', joinDate: '2024-10-01', totalSpent: 1299 },
+    ];
+
+    const orders = [
+      { id: 1001, customerId: 1, customerName: 'Іван Петренко', items: 'Футболка, Джинси', amount: 1198, date: '2024-11-05', status: 'completed' },
+      { id: 1002, customerId: 2, customerName: 'Марія Шевченко', items: 'Кросівки', amount: 1299, date: '2024-11-06', status: 'pending' },
+      { id: 1003, customerId: 3, customerName: 'Олег Сидоренко', items: 'Шапка, Гарнітура', amount: 798, date: '2024-11-07', status: 'completed' },
+    ];
+
+    // -------------------- STATE --------------------
+    let state = {
+      products: [...products],
+      customers: [...customers],
+      orders: [...orders]
+    };
+
+    // -------------------- HELPERS --------------------
+    const $ = (sel) => document.querySelector(sel);
+    const $$ = (sel) => Array.from(document.querySelectorAll(sel));
+
+    function notify(message, type = 'success'){
+      const n = document.createElement('div');
+      n.className = 'notification '+(type==='error'? 'error':'success');
+      n.textContent = message;
+      document.getElementById('notificationContainer').appendChild(n);
+      setTimeout(()=>{n.remove()},3000);
+    }
+
+    function formatDate(iso){
+      if(!iso) return '';
+      const d = new Date(iso);
+      return d.toLocaleDateString('uk-UA');
+    }
+
+    function formatPrice(price){
+      return '₴' + price.toLocaleString('uk-UA');
+    }
+
+    // -------------------- RENDER --------------------
+    function renderStats(){
+      $('#stat-products').textContent = state.products.length;
+      $('#stat-customers').textContent = state.customers.length;
+      const today = new Date().toISOString().split('T')[0];
+      $('#stat-today').textContent = state.orders.filter(o=>o.date===today).length;
+      $('#stat-pending').textContent = state.orders.filter(o=>o.status==='pending').length;
+
+      // recent orders
+      const recent = state.orders.slice().sort((a,b)=> new Date(b.date) - new Date(a.date)).slice(0,5);
+      const container = $('#recent-orders'); container.innerHTML='';
+      recent.forEach(ord=>{
+        const div = document.createElement('div');
+        div.style.display='flex';div.style.justifyContent='space-between';div.style.alignItems='center';div.style.padding='8px 0';
+        div.innerHTML = `<div><div style='font-weight:600'>Замовлення №${ord.id}</div><div class='muted' style='font-size:13px'>${ord.customerName} • ${formatPrice(ord.amount)}</div></div>` +
+                        `<div class='pill ${ord.status==='completed' ? 'green':'yellow'}'>${ord.status==='completed' ? 'Доставлено':'Обробляється'}</div>`;
+        container.appendChild(div);
+      });
+    }
+
+    function renderProductsTable(){
+      const tbody = $('#products-table'); tbody.innerHTML='';
+      state.products.forEach(p=>{
+        const tr = document.createElement('tr');
+        const statusClass = p.quantity > p.minStock ? 'green' : p.quantity > 0 ? 'yellow' : 'red';
+        const statusText = p.quantity > p.minStock ? '✓ В наявності' : p.quantity > 0 ? '⚠️ Мало' : '❌ Закінчився';
+        tr.innerHTML = `<td><strong>${p.name}</strong></td><td>${p.category}</td><td>${formatPrice(p.price)}</td><td>${p.quantity}</td><td><span class='pill ${statusClass}'>${statusText}</span></td><td><button class='btn ghost' onclick='editProduct(${p.id})'>✏️</button></td>`;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function renderOrdersTable(){
+      const tbody = $('#orders-table'); tbody.innerHTML='';
+      state.orders.forEach(o=>{
+        const tr = document.createElement('tr');
+        tr.innerHTML = `<td><strong>№${o.id}</strong></td><td>${o.customerName}</td><td>${o.items}</td><td>${formatPrice(o.amount)}</td><td>${formatDate(o.date)}</td><td><span class='pill ${o.status==='completed' ? 'green':'yellow'}'>${o.status==='completed' ? 'Доставлено':'Обробляється'}</span></td>`;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function renderCustomersTable(){
+      const container = $('#customers-list'); container.innerHTML='';
+      state.customers.forEach(c=>{
+        const div = document.createElement('div');
+        div.style.display='flex';div.style.justifyContent='space-between';div.style.alignItems='center';div.style.padding='12px 0';div.style.borderBottom='1px solid #f1f5f9';
+        const left = document.createElement('div');
+        left.innerHTML = `<div style='font-weight:700'>${c.fullName}</div><div class='muted'>${c.phone} • ${c.email}</div><div class='muted' style='margin-top:4px'>${c.address}</div>`;
+        const right = document.createElement('div');
+        right.innerHTML = `<div class='muted'>Витрачено:</div><div style='font-weight:700;font-size:18px'>${formatPrice(c.totalSpent)}</div>`;
+        div.appendChild(left);div.appendChild(right);
+        container.appendChild(div);
+      });
+    }
+
+    function renderInventory(){
+      let totalQty = 0, lowStockQty = 0, totalValue = 0;
+      state.products.forEach(p=>{ totalQty += p.quantity; totalValue += p.quantity * p.price; if(p.quantity <= p.minStock) lowStockQty++; });
+      
+      $('#inv-total').textContent = totalQty;
+      $('#inv-low').textContent = lowStockQty;
+      $('#inv-value').textContent = formatPrice(totalValue);
+      
+      const categories = new Set(state.products.map(p=>p.category));
+      $('#inv-categories').textContent = categories.size;
+
+      const tbody = $('#inventory-table'); tbody.innerHTML='';
+      state.products.forEach(p=>{
+        const tr = document.createElement('tr');
+        const statusClass = p.quantity > p.minStock ? 'green' : 'yellow';
+        tr.innerHTML = `<td><strong>${p.name}</strong></td><td>${p.category}</td><td>${p.minStock}</td><td>${p.quantity}</td><td>${p.maxStock}</td><td><span class='pill ${statusClass}'>${p.quantity > p.minStock ? 'Нормально' : 'Низький запас'}</span></td>`;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function renderReports(){
+      const totalRevenue = state.orders.filter(o=>o.status==='completed').reduce((sum,o)=>sum+o.amount,0);
+      $('#rep-revenue').textContent = formatPrice(totalRevenue);
+      $('#rep-orders').textContent = state.orders.length;
+      const avgCheck = state.orders.length > 0 ? totalRevenue / state.orders.length : 0;
+      $('#rep-avg').textContent = formatPrice(avgCheck);
+
+      const topProduct = state.products.sort((a,b)=>b.soldCount-a.soldCount)[0];
+      $('#rep-top').textContent = topProduct ? topProduct.name : '-';
+
+      // Category report
+      const categories = {};
+      state.products.forEach(p=>{
+        if(!categories[p.category]) categories[p.category] = { count: 0, qty: 0, value: 0 };
+        categories[p.category].count++;
+        categories[p.category].qty += p.quantity;
+        categories[p.category].value += p.quantity * p.price;
+      });
+
+      const tbody = $('#reports-table'); tbody.innerHTML='';
+      Object.entries(categories).forEach(([cat, data])=>{
+        const tr = document.createElement('tr');
+        tr.innerHTML = `<td>${cat}</td><td>${data.count}</td><td>${data.qty}</td><td>${formatPrice(data.value)}</td>`;
+        tbody.appendChild(tr);
+      });
+    }
+
+    // -------------------- MODALS: add customer --------------------
+    function openAddCustomer(){
+      const modal = document.createElement('div');
+      modal.className='modal-backdrop';
+      modal.innerHTML = `
+        <div class='modal'>
+          <div style='display:flex;justify-content:space-between;align-items:center'><h3>Реєстрація нового клієнта</h3><button class='btn ghost' id='closeAddCustomer'>✖</button></div>
+          <form id='addCustomerForm'>
+            <div class='form-grid cols-2' style='margin-top:12px'>
+              <div>
+                <label>ПІБ *</label>
+                <input type='text' name='fullName' required placeholder='Іванов Іван Іванович'/>
+              </div>
+              <div>
+                <label>Email *</label>
+                <input type='email' name='email' required placeholder='ivan@example.com'/>
+              </div>
+              <div>
+                <label>Телефон *</label>
+                <input type='tel' name='phone' required placeholder='+380501234567'/>
+              </div>
+              <div>
+                <label>Місто</label>
+                <input type='text' name='city' placeholder='Київ'/>
+              </div>
+              <div style='grid-column:1 / -1'>
+                <label>Адреса доставки *</label>
+                <input type='text' name='address' required placeholder='вул. ..., дім ...'/>
+              </div>
+            </div>
+            <div class='modal-footer'>
+              <button type='button' class='btn ghost' id='cancelAddCustomer'>Скасувати</button>
+              <button type='submit' class='btn primary'>Додати клієнта</button>
+            </div>
+          </form>
+        </div>
+      `;
+      document.getElementById('modalContainer').appendChild(modal);
+
+      modal.querySelector('#closeAddCustomer').addEventListener('click', ()=>modal.remove());
+      modal.querySelector('#cancelAddCustomer').addEventListener('click', ()=>modal.remove());
+
+      modal.querySelector('#addCustomerForm').addEventListener('submit', (e)=>{
+        e.preventDefault();
+        const fd = new FormData(e.target);
+        const newC = {
+          id: state.customers.length + 1,
+          fullName: fd.get('fullName'),
+          email: fd.get('email'),
+          phone: fd.get('phone'),
+          address: fd.get('address'),
+          city: fd.get('city'),
+          joinDate: new Date().toISOString().split('T')[0],
+          totalSpent: 0
+        };
+        state.customers.push(newC);
+        renderCustomersTable(); renderStats();
+        modal.remove();
+        notify('Клієнта успішно додано!');
+      });
+    }
+
+    // -------------------- MODALS: add product --------------------
+    function openAddProduct(){
+      const modal = document.createElement('div');
+      modal.className='modal-backdrop';
+      modal.innerHTML = `
+        <div class='modal'>
+          <div style='display:flex;justify-content:space-between;align-items:center'><h3>Додавання нового товару</h3><button class='btn ghost' id='closeAddProduct'>✖</button></div>
+          <form id='addProductForm'>
+            <div class='form-grid cols-2' style='margin-top:12px'>
+              <div>
+                <label>Назва товару *</label>
+                <input type='text' name='name' required placeholder='Назва...'/>
+              </div>
+              <div>
+                <label>Категорія *</label>
+                <select name='category' required>
+                  <option value=''>Оберіть категорію</option>
+                  <option value='Одяг'>Одяг</option>
+                  <option value='Взуття'>Взуття</option>
+                  <option value='Аксесуари'>Аксесуари</option>
+                  <option value='Електроніка'>Електроніка</option>
+                  <option value='Інше'>Інше</option>
+                </select>
+              </div>
+              <div>
+                <label>Ціна (₴) *</label>
+                <input type='number' name='price' required placeholder='0.00' step='0.01' min='0'/>
+              </div>
+              <div>
+                <label>Кількість на складі *</label>
+                <input type='number' name='quantity' required placeholder='0' min='0'/>
+              </div>
+              <div>
+                <label>Мінімум запасу *</label>
+                <input type='number' name='minStock' required placeholder='5' min='0'/>
+              </div>
+              <div>
+                <label>Максимум запасу *</label>
+                <input type='number' name='maxStock' required placeholder='100' min='0'/>
+              </div>
+            </div>
+            <div class='modal-footer'>
+              <button type='button' class='btn ghost' id='cancelAddProduct'>Скасувати</button>
+              <button type='submit' class='btn primary'>Додати товар</button>
+            </div>
+          </form>
+        </div>
+      `;
+      document.getElementById('modalContainer').appendChild(modal);
+
+      modal.querySelector('#closeAddProduct').addEventListener('click', ()=>modal.remove());
+      modal.querySelector('#cancelAddProduct').addEventListener('click', ()=>modal.remove());
+
+      modal.querySelector('#addProductForm').addEventListener('submit', (e)=>{
+        e.preventDefault();
+        const fd = new FormData(e.target);
+        const newP = {
+          id: state.products.length + 1,
+          name: fd.get('name'),
+          category: fd.get('category'),
+          price: parseFloat(fd.get('price')),
+          quantity: parseInt(fd.get('quantity')),
+          minStock: parseInt(fd.get('minStock')),
+          maxStock: parseInt(fd.get('maxStock')),
+          soldCount: 0
+        };
+        state.products.push(newP);
+        renderProductsTable(); renderStats(); renderInventory();
+        modal.remove();
+        notify('Товар успішно додано!');
+      });
+    }
+
+    function editProduct(id){
+      notify('Редагування товару з ID: ' + id);
+    }
+
+    // -------------------- MODALS: add order --------------------
+    function openAddOrder(){
+      const modal = document.createElement('div');
+      modal.className='modal-backdrop';
+      const customerOptions = state.customers.map(c=>`<option value='${c.id}'>${c.fullName} - ${c.phone}</option>`).join('');
+      const productOptions = state.products.map(p=>`<option value='${p.id}' data-price='${p.price}'>${p.name} - ${formatPrice(p.price)}</option>`).join('');
+
+      modal.innerHTML = `
+        <div class='modal'>
+          <div style='display:flex;justify-content:space-between;align-items:center'><h3>Створення нового замовлення</h3><button class='btn ghost' id='closeAddOrder'>✖</button></div>
+          <form id='addOrderForm' style='margin-top:12px'>
+            <div class='form-grid cols-2'>
+              <div>
+                <label>Клієнт *</label>
+                <select name='customerId' required><option value=''>Оберіть клієнта</option>${customerOptions}</select>
+              </div>
+              <div>
+                <label>Товар *</label>
+                <select name='productId' required id='orderProductSelect'><option value=''>Оберіть товар</option>${productOptions}</select>
+              </div>
+              <div>
+                <label>Кількість *</label>
+                <input type='number' name='quantity' required value='1' min='1'/>
+              </div>
+              <div>
+                <label>Ціна за одиницю</label>
+                <input type='number' name='unitPrice' readonly placeholder='Автоматично'/>
+              </div>
+              <div>
+                <label>Дата замовлення</label>
+                <input type='date' name='date' required/>
+              </div>
+              <div>
+                <label>Статус</label>
+                <select name='status' required>
+                  <option value='pending'>Обробляється</option>
+                  <option value='completed'>Доставлено</option>
+                  <option value='cancelled'>Скасовано</option>
+                </select>
+              </div>
+            </div>
+            <div class='modal-footer'>
+              <button type='button' class='btn ghost' id='cancelAddOrder'>Скасувати</button>
+              <button type='submit' class='btn primary'>Створити замовлення</button>
+            </div>
+          </form>
+        </div>
+      `;
+      document.getElementById('modalContainer').appendChild(modal);
+
+      const form = modal.querySelector('#addOrderForm');
+      const productSelect = form.querySelector('#orderProductSelect');
+      const priceInput = form.querySelector('input[name="unitPrice"]');
+      const dateInput = form.querySelector('input[name="date"]');
+      
+      dateInput.valueAsDate = new Date();
+
+      productSelect.addEventListener('change', ()=>{
+        const selectedOption = productSelect.options[productSelect.selectedIndex];
+        priceInput.value = selectedOption.getAttribute('data-price') || '';
+      });
+
+      modal.querySelector('#closeAddOrder').addEventListener('click', ()=>modal.remove());
+      modal.querySelector('#cancelAddOrder').addEventListener('click', ()=>modal.remove());
+
+      form.addEventListener('submit', (e)=>{
+        e.preventDefault();
+        const fd = new FormData(form);
+        const customerId = parseInt(fd.get('customerId'));
+        const productId = parseInt(fd.get('productId'));
+        const customer = state.customers.find(c=>c.id===customerId);
+        const product = state.products.find(p=>p.id===productId);
+        const quantity = parseInt(fd.get('quantity'));
+        const unitPrice = parseFloat(fd.get('unitPrice'));
+        
+        if(!customer || !product){ notify('Будь ласка, оберіть клієнта та товар','error'); return; }
+        
+        const newO = {
+          id: 1000 + state.orders.length + 1,
+          customerId: customer.id,
+          customerName: customer.fullName,
+          items: product.name,
+          amount: quantity * unitPrice,
+          date: fd.get('date'),
+          status: fd.get('status')
+        };
+        state.orders.push(newO);
+        renderOrdersTable(); renderStats();
+        modal.remove();
+        notify('Замовлення успішно створено!');
+      });
+    }
+
+    // -------------------- UI wiring --------------------
+    function initUI(){
+      // sidebar tabs
+      document.querySelectorAll('aside nav button').forEach(btn=>{
+        btn.addEventListener('click', ()=>{
+          document.querySelectorAll('aside nav button').forEach(b=>b.classList.remove('active'));
+          btn.classList.add('active');
+          const tab = btn.getAttribute('data-tab');
+          document.querySelectorAll('main section').forEach(s=>s.style.display='none');
+          document.getElementById('tab-'+tab).style.display='block';
+          
+          // render specific tab data
+          if(tab === 'inventory') renderInventory();
+          else if(tab === 'reports') renderReports();
+        });
+      });
+
+      // quick action buttons
+      $('#openAddCustomer').addEventListener('click', openAddCustomer);
+      $('#openAddCustomerTop').addEventListener('click', openAddCustomer);
+      $('#openAddOrder').addEventListener('click', openAddOrder);
+      $('#openAddOrderTop').addEventListener('click', openAddOrder);
+      $('#openAddProductTop').addEventListener('click', openAddProduct);
+
+      // initial render
+      renderAll();
+    }
+
+    function renderAll(){ 
+      renderStats(); 
+      renderProductsTable(); 
+      renderOrdersTable(); 
+      renderCustomersTable();
+      renderInventory();
+      renderReports();
+    }
+
+    // initialize
+    initUI();
+
+    // ---- THEME TOGGLE ----
+    (function(){
+      const html = document.documentElement;
+      const btn = document.getElementById('themeToggle');
+      const saved = localStorage.getItem('shopflow-theme') || 'light';
+      html.setAttribute('data-theme', saved);
+      btn.textContent = saved === 'dark' ? '☀️' : '🌙';
+      btn.addEventListener('click', () => {
+        const c = html.getAttribute('data-theme');
+        const n = c === 'light' ? 'dark' : 'light';
+        html.setAttribute('data-theme', n);
+        localStorage.setItem('shopflow-theme', n);
+        btn.textContent = n === 'dark' ? '☀️' : '🌙';
+      });
+    })();
+
+  </script>
+</body>
+</html>
