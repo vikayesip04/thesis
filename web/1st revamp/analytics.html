@@ -1,0 +1,425 @@
+<!doctype html>
+<html lang="uk" data-theme="light">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>ShopFlow — Аналітика</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet"/>
+  <style>
+    :root {
+      --bg: #f0f7ff;
+      --bg2: #e0effe;
+      --surface: #ffffff;
+      --surface2: #f4f9ff;
+      --border: #c5ddf6;
+      --text: #0b1e38;
+      --text2: #3a5a82;
+      --accent: #0872e8;
+      --accent2: #3b99ff;
+      --accent-light: #dbeafe;
+      --shadow: rgba(8,114,232,0.12);
+      --card-shadow: 0 2px 20px rgba(8,114,232,0.08);
+      --nav-bg: rgba(255,255,255,0.88);
+      --green: #059669;
+      --green-light: #d1fae5;
+      --red: #dc2626;
+      --red-light: #fee2e2;
+      --yellow: #d97706;
+      --yellow-light: #fef3c7;
+    }
+    [data-theme="dark"] {
+      --bg: #060e1c;
+      --bg2: #0c1a30;
+      --surface: #0f2040;
+      --surface2: #142848;
+      --border: #1e3a5f;
+      --text: #e8f2ff;
+      --text2: #7eb4f0;
+      --accent: #3b99ff;
+      --accent2: #60b4ff;
+      --accent-light: rgba(59,153,255,0.15);
+      --shadow: rgba(59,153,255,0.18);
+      --card-shadow: 0 2px 24px rgba(0,0,0,0.35);
+      --nav-bg: rgba(6,14,28,0.9);
+      --green-light: rgba(5,150,105,0.15);
+      --red-light: rgba(220,38,38,0.15);
+      --yellow-light: rgba(217,119,6,0.15);
+    }
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;transition:background .3s,color .3s}
+
+    nav {
+      position:sticky;top:0;z-index:100;
+      background:var(--nav-bg);
+      backdrop-filter:blur(16px);
+      border-bottom:1px solid var(--border);
+      display:flex;align-items:center;justify-content:space-between;
+      padding:0 48px;height:64px;transition:background .3s;
+    }
+    .nav-brand{display:flex;align-items:center;gap:10px;font-family:'Sora',sans-serif;font-weight:800;font-size:20px;color:var(--accent);text-decoration:none}
+    .logo-icon{width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,var(--accent),var(--accent2));display:flex;align-items:center;justify-content:center;font-size:18px;box-shadow:0 4px 12px var(--shadow)}
+    .nav-links{display:flex;align-items:center;gap:8px}
+    .nav-links a{text-decoration:none;color:var(--text2);font-size:14px;font-weight:500;padding:8px 14px;border-radius:8px;transition:background .2s,color .2s}
+    .nav-links a:hover{background:var(--accent-light);color:var(--accent)}
+    .nav-links a.active{color:var(--accent);background:var(--accent-light)}
+    .nav-right{display:flex;align-items:center;gap:10px}
+    .theme-toggle{width:42px;height:42px;border-radius:10px;background:var(--surface2);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:18px;transition:all .2s}
+    .theme-toggle:hover{background:var(--accent-light);border-color:var(--accent)}
+
+    /* PAGE LAYOUT */
+    .page{max-width:1200px;margin:0 auto;padding:36px 48px 60px}
+    .page-header{margin-bottom:32px}
+    .page-header h1{font-family:'Sora',sans-serif;font-size:30px;font-weight:800;color:var(--text);margin-bottom:4px}
+    .page-header p{color:var(--text2);font-size:14px}
+
+    /* PERIOD TABS */
+    .period-tabs{display:flex;gap:6px;margin-bottom:28px;flex-wrap:wrap}
+    .period-tab{padding:8px 18px;border-radius:8px;border:1px solid var(--border);background:var(--surface);color:var(--text2);font-size:13px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .2s}
+    .period-tab.active{background:var(--accent);color:#fff;border-color:var(--accent)}
+    .period-tab:hover:not(.active){background:var(--accent-light);color:var(--accent);border-color:var(--accent)}
+
+    /* KPI GRID */
+    .kpi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;margin-bottom:28px}
+    .kpi-card{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:24px;box-shadow:var(--card-shadow);transition:transform .2s}
+    .kpi-card:hover{transform:translateY(-2px)}
+    .kpi-label{font-size:12px;color:var(--text2);font-weight:600;text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px}
+    .kpi-value{font-family:'Sora',sans-serif;font-size:28px;font-weight:800;color:var(--text);margin-bottom:8px}
+    .kpi-change{font-size:12px;font-weight:700;display:inline-flex;align-items:center;gap:4px;padding:3px 8px;border-radius:6px}
+    .kpi-change.up{background:var(--green-light);color:var(--green)}
+    .kpi-change.down{background:var(--red-light);color:var(--red)}
+    .kpi-change.neutral{background:var(--yellow-light);color:var(--yellow)}
+
+    /* CHART CARD */
+    .chart-card{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:28px;box-shadow:var(--card-shadow);margin-bottom:20px}
+    .chart-title{font-family:'Sora',sans-serif;font-size:16px;font-weight:700;color:var(--text);margin-bottom:4px}
+    .chart-sub{font-size:12px;color:var(--text2);margin-bottom:24px}
+    .chart-area{position:relative}
+
+    /* SVG CHART STYLES */
+    .bar-chart-wrap{overflow-x:auto}
+    .chart-grid{width:100%}
+
+    /* TWO COLS */
+    .two-cols{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:20px}
+    @media(max-width:860px){.two-cols{grid-template-columns:1fr}}
+
+    /* TABLE */
+    table{width:100%;border-collapse:collapse}
+    thead th{background:var(--surface2);text-align:left;padding:12px 16px;font-size:12px;color:var(--text2);font-weight:700;text-transform:uppercase;letter-spacing:.06em}
+    thead th:first-child{border-radius:8px 0 0 8px}
+    thead th:last-child{border-radius:0 8px 8px 0}
+    tbody td{padding:13px 16px;border-bottom:1px solid var(--border);color:var(--text);font-size:14px}
+    tbody tr:last-child td{border-bottom:none}
+    tbody tr:hover{background:var(--surface2)}
+
+    /* PILL */
+    .pill{display:inline-block;padding:4px 10px;border-radius:999px;font-size:11px;font-weight:700}
+    .pill.green{background:var(--green-light);color:var(--green)}
+    .pill.yellow{background:var(--yellow-light);color:var(--yellow)}
+    .pill.blue{background:var(--accent-light);color:var(--accent)}
+    .pill.red{background:var(--red-light);color:var(--red)}
+
+    /* DONUT */
+    .donut-wrap{display:flex;align-items:center;gap:28px;flex-wrap:wrap}
+    .donut-legend{display:flex;flex-direction:column;gap:10px;min-width:140px}
+    .legend-item{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--text2)}
+    .legend-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+
+    @media(max-width:640px){nav{padding:0 16px}.nav-links{display:none}.page{padding:24px 16px 48px}}
+  </style>
+</head>
+<body>
+
+  <nav>
+    <a href="index.html" class="nav-brand">
+      <div class="logo-icon">🏪</div>
+      ShopFlow
+    </a>
+    <div class="nav-links">
+      <a href="index.html">Головна</a>
+      <a href="management.html">Управління</a>
+      <a href="nomenclature.html">Номенклатура</a>
+      <a href="analytics.html" class="active">Аналітика</a>
+    </div>
+    <div class="nav-right">
+      <button class="theme-toggle" id="themeToggle" title="Змінити тему">🌙</button>
+    </div>
+  </nav>
+
+  <div class="page">
+    <div class="page-header">
+      <h1>📊 Аналітика</h1>
+      <p>Детальні звіти про продажі, доходи та поведінку клієнтів</p>
+    </div>
+
+    <div class="period-tabs">
+      <button class="period-tab" onclick="setPeriod(this,'7д')">7 днів</button>
+      <button class="period-tab active" onclick="setPeriod(this,'30д')">30 днів</button>
+      <button class="period-tab" onclick="setPeriod(this,'90д')">90 днів</button>
+      <button class="period-tab" onclick="setPeriod(this,'рік')">Рік</button>
+    </div>
+
+    <!-- KPI -->
+    <div class="kpi-grid">
+      <div class="kpi-card">
+        <div class="kpi-label">Загальний дохід</div>
+        <div class="kpi-value" id="kpi-revenue">₴ 48 350</div>
+        <span class="kpi-change up" id="kpi-revenue-change">▲ +18.4%</span>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Кількість замовлень</div>
+        <div class="kpi-value" id="kpi-orders">142</div>
+        <span class="kpi-change up" id="kpi-orders-change">▲ +12.1%</span>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Середній чек</div>
+        <div class="kpi-value" id="kpi-avg">₴ 340</div>
+        <span class="kpi-change neutral" id="kpi-avg-change">● +1.2%</span>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Нових клієнтів</div>
+        <div class="kpi-value" id="kpi-clients">34</div>
+        <span class="kpi-change down" id="kpi-clients-change">▼ -4.3%</span>
+      </div>
+    </div>
+
+    <!-- REVENUE CHART -->
+    <div class="chart-card">
+      <div class="chart-title">Динаміка доходу</div>
+      <div class="chart-sub">Щоденний дохід за обраний період</div>
+      <div class="chart-area bar-chart-wrap">
+        <svg id="revenueChart" viewBox="0 0 900 220" preserveAspectRatio="xMinYMin meet" style="width:100%;min-width:460px;display:block"></svg>
+      </div>
+    </div>
+
+    <!-- TWO COLS -->
+    <div class="two-cols">
+      <!-- DONUT -->
+      <div class="chart-card" style="margin-bottom:0">
+        <div class="chart-title">Продажі за категоріями</div>
+        <div class="chart-sub">Частка доходу по категорії товарів</div>
+        <div class="donut-wrap">
+          <svg id="donutChart" viewBox="0 0 160 160" width="160" height="160" style="flex-shrink:0"></svg>
+          <div class="donut-legend" id="donutLegend"></div>
+        </div>
+      </div>
+
+      <!-- TOP PRODUCTS -->
+      <div class="chart-card" style="margin-bottom:0">
+        <div class="chart-title">Топ товарів</div>
+        <div class="chart-sub">За кількістю продажів</div>
+        <div id="topProducts"></div>
+      </div>
+    </div>
+
+    <div style="height:20px"></div>
+
+    <!-- ORDERS TABLE -->
+    <div class="chart-card">
+      <div class="chart-title">Останні замовлення</div>
+      <div class="chart-sub">Повний перелік за обраний період</div>
+      <table>
+        <thead>
+          <tr>
+            <th>№</th>
+            <th>Клієнт</th>
+            <th>Товар</th>
+            <th>Сума</th>
+            <th>Дата</th>
+            <th>Статус</th>
+          </tr>
+        </thead>
+        <tbody id="ordersTableBody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <script>
+    // Theme
+    const html = document.documentElement;
+    const btn = document.getElementById('themeToggle');
+    const saved = localStorage.getItem('shopflow-theme') || 'light';
+    html.setAttribute('data-theme', saved);
+    btn.textContent = saved === 'dark' ? '☀️' : '🌙';
+    btn.addEventListener('click', () => {
+      const c = html.getAttribute('data-theme');
+      const n = c === 'light' ? 'dark' : 'light';
+      html.setAttribute('data-theme', n);
+      localStorage.setItem('shopflow-theme', n);
+      btn.textContent = n === 'dark' ? '☀️' : '🌙';
+      renderCharts();
+    });
+
+    function setPeriod(el, label) {
+      document.querySelectorAll('.period-tab').forEach(t => t.classList.remove('active'));
+      el.classList.add('active');
+      updateKPIs(label);
+      renderCharts();
+    }
+
+    const periodData = {
+      '7д':  { revenue:'₴ 11 200', orders:28, avg:'₴ 400', clients:8, rChange:'+8.2%', oChange:'+5.1%', aChange:'-1.0%', cChange:'+3.3%', rDir:'up', oDir:'up', aDir:'down', cDir:'up' },
+      '30д': { revenue:'₴ 48 350', orders:142, avg:'₴ 340', clients:34, rChange:'+18.4%', oChange:'+12.1%', aChange:'+1.2%', cChange:'-4.3%', rDir:'up', oDir:'up', aDir:'neutral', cDir:'down' },
+      '90д': { revenue:'₴ 134 700', orders:390, avg:'₴ 345', clients:89, rChange:'+22.1%', oChange:'+19.4%', aChange:'+2.8%', cChange:'-1.2%', rDir:'up', oDir:'up', aDir:'up', cDir:'down' },
+      'рік': { revenue:'₴ 524 900', orders:1480, avg:'₴ 354', clients:310, rChange:'+31.0%', oChange:'+28.5%', aChange:'+4.6%', cChange:'+11.2%', rDir:'up', oDir:'up', aDir:'up', cDir:'up' },
+    };
+
+    function updateKPIs(p) {
+      const d = periodData[p];
+      if (!d) return;
+      document.getElementById('kpi-revenue').textContent = d.revenue;
+      document.getElementById('kpi-orders').textContent = d.orders;
+      document.getElementById('kpi-avg').textContent = d.avg;
+      document.getElementById('kpi-clients').textContent = d.clients;
+      const setChange = (id, text, dir) => {
+        const el = document.getElementById(id);
+        el.textContent = (dir === 'up' ? '▲ ' : dir === 'down' ? '▼ ' : '● ') + text;
+        el.className = 'kpi-change ' + dir;
+      };
+      setChange('kpi-revenue-change', d.rChange, d.rDir);
+      setChange('kpi-orders-change', d.oChange, d.oDir);
+      setChange('kpi-avg-change', d.aChange, d.aDir);
+      setChange('kpi-clients-change', d.cChange, d.cDir);
+    }
+
+    // Revenue Bar Chart
+    function renderRevenueChart() {
+      const svg = document.getElementById('revenueChart');
+      const accent = getComputedStyle(document.documentElement).getPropertyValue('--accent').trim();
+      const text2 = getComputedStyle(document.documentElement).getPropertyValue('--text2').trim();
+      const border = getComputedStyle(document.documentElement).getPropertyValue('--border').trim();
+
+      const data = [3200,4100,2800,5200,4700,6100,3900,5500,6800,4200,5900,7100,4500,6200,5300,7400,4800,6600,5100,7900,5600,6300,4900,7200,5800,6700,4600,7500,6100,8200];
+      const labels = ['1','','','','5','','','','','10','','','','','15','','','','','20','','','','','25','','','','','30'];
+      const W = 900, H = 220, padL = 48, padR = 12, padT = 12, padB = 36;
+      const cW = W - padL - padR, cH = H - padT - padB;
+      const max = Math.max(...data);
+      const barW = (cW / data.length) * 0.6;
+      const gap = cW / data.length;
+
+      let content = `<defs><linearGradient id="barGrad" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="${accent}" stop-opacity="1"/><stop offset="100%" stop-color="${accent}" stop-opacity="0.4"/></linearGradient></defs>`;
+
+      // grid lines
+      [0, 0.25, 0.5, 0.75, 1].forEach(t => {
+        const y = padT + cH * (1 - t);
+        content += `<line x1="${padL}" y1="${y}" x2="${W - padR}" y2="${y}" stroke="${border}" stroke-width="1"/>`;
+        if (t > 0) content += `<text x="${padL - 6}" y="${y + 4}" text-anchor="end" fill="${text2}" font-size="10">${Math.round(max * t / 1000)}k</text>`;
+      });
+
+      // bars
+      data.forEach((v, i) => {
+        const barH = (v / max) * cH;
+        const x = padL + i * gap + (gap - barW) / 2;
+        const y = padT + cH - barH;
+        content += `<rect x="${x}" y="${y}" width="${barW}" height="${barH}" rx="4" fill="url(#barGrad)" opacity="0.9"><title>₴ ${v.toLocaleString()}</title></rect>`;
+        if (labels[i]) content += `<text x="${x + barW / 2}" y="${H - 6}" text-anchor="middle" fill="${text2}" font-size="10">${labels[i]}</text>`;
+      });
+
+      svg.innerHTML = content;
+    }
+
+    // Donut Chart
+    const categories = [
+      { name:'Одяг', value:38, color:'#0872e8' },
+      { name:'Взуття', value:24, color:'#3b99ff' },
+      { name:'Аксесуари', value:19, color:'#60b4ff' },
+      { name:'Електроніка', value:12, color:'#93c5fd' },
+      { name:'Інше', value:7, color:'#bfdbfe' },
+    ];
+
+    function renderDonut() {
+      const svg = document.getElementById('donutChart');
+      const legend = document.getElementById('donutLegend');
+      const cx = 80, cy = 80, r = 62, ir = 40;
+      let total = categories.reduce((s, c) => s + c.value, 0);
+      let startAngle = -Math.PI / 2;
+      let paths = '';
+
+      categories.forEach(cat => {
+        const angle = (cat.value / total) * 2 * Math.PI;
+        const x1 = cx + r * Math.cos(startAngle), y1 = cy + r * Math.sin(startAngle);
+        const x2 = cx + r * Math.cos(startAngle + angle), y2 = cy + r * Math.sin(startAngle + angle);
+        const ix1 = cx + ir * Math.cos(startAngle), iy1 = cy + ir * Math.sin(startAngle);
+        const ix2 = cx + ir * Math.cos(startAngle + angle), iy2 = cy + ir * Math.sin(startAngle + angle);
+        const large = angle > Math.PI ? 1 : 0;
+        paths += `<path d="M${ix1},${iy1} A${ir},${ir} 0 ${large},1 ${ix2},${iy2} L${x2},${y2} A${r},${r} 0 ${large},0 ${x1},${y1} Z" fill="${cat.color}"><title>${cat.name}: ${cat.value}%</title></path>`;
+        startAngle += angle;
+      });
+
+      const surface = getComputedStyle(document.documentElement).getPropertyValue('--surface').trim();
+      const text = getComputedStyle(document.documentElement).getPropertyValue('--text').trim();
+      paths += `<circle cx="${cx}" cy="${cy}" r="${ir - 2}" fill="${surface}"/>`;
+      paths += `<text x="${cx}" y="${cy - 4}" text-anchor="middle" fill="${text}" font-size="13" font-weight="700" font-family="Sora,sans-serif">100%</text>`;
+      paths += `<text x="${cx}" y="${cy + 12}" text-anchor="middle" fill="${text}" font-size="9" font-family="DM Sans,sans-serif">продажів</text>`;
+
+      svg.innerHTML = paths;
+
+      legend.innerHTML = categories.map(c =>
+        `<div class="legend-item"><div class="legend-dot" style="background:${c.color}"></div>${c.name} <strong>${c.value}%</strong></div>`
+      ).join('');
+    }
+
+    // Top Products
+    const topProds = [
+      { name:'Шапка чорна', sold:32, pct:100 },
+      { name:'Футболка XL', sold:23, pct:72 },
+      { name:'Джинси 32', sold:15, pct:47 },
+      { name:'Кросівки', sold:8, pct:25 },
+      { name:'Гарнітура BT', sold:5, pct:16 },
+    ];
+
+    function renderTopProducts() {
+      const accent = getComputedStyle(document.documentElement).getPropertyValue('--accent').trim();
+      const accentLight = getComputedStyle(document.documentElement).getPropertyValue('--accent-light').trim();
+      document.getElementById('topProducts').innerHTML = topProds.map((p, i) => `
+        <div style="margin-bottom:14px">
+          <div style="display:flex;justify-content:space-between;margin-bottom:5px">
+            <span style="font-size:13px;font-weight:600;color:var(--text)">${i+1}. ${p.name}</span>
+            <span style="font-size:12px;color:var(--text2)">${p.sold} шт.</span>
+          </div>
+          <div style="background:var(--surface2);border-radius:999px;height:7px;overflow:hidden">
+            <div style="height:100%;width:${p.pct}%;background:linear-gradient(90deg,${accent},${accent}cc);border-radius:999px;transition:width .6s ease"></div>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    // Orders Table
+    const orders = [
+      { id:1042, customer:'Іванов Іван', product:'Кросівки спортивні', amount:1299, date:'2025-04-20', status:'completed' },
+      { id:1041, customer:'Петрова Олена', product:'Футболка чорна XL', amount:299, date:'2025-04-19', status:'completed' },
+      { id:1040, customer:'Сидоренко Марк', product:'Джинси сині 32', amount:899, date:'2025-04-19', status:'pending' },
+      { id:1039, customer:'Коваль Наталія', product:'Гарнітура Bluetooth', amount:599, date:'2025-04-18', status:'completed' },
+      { id:1038, customer:'Мельник Андрій', product:'Шапка чорна', amount:199, date:'2025-04-18', status:'cancelled' },
+      { id:1037, customer:'Шевченко Юлія', product:'Футболка чорна XL', amount:299, date:'2025-04-17', status:'completed' },
+      { id:1036, customer:'Бойко Дмитро', product:'Джинси сині 32', amount:899, date:'2025-04-17', status:'pending' },
+    ];
+
+    function renderOrdersTable() {
+      const statusMap = { completed:['green','Доставлено'], pending:['yellow','Обробляється'], cancelled:['red','Скасовано'] };
+      document.getElementById('ordersTableBody').innerHTML = orders.map(o => {
+        const [cls, label] = statusMap[o.status];
+        return `<tr>
+          <td><strong>№${o.id}</strong></td>
+          <td>${o.customer}</td>
+          <td>${o.product}</td>
+          <td><strong>₴ ${o.amount.toLocaleString()}</strong></td>
+          <td style="color:var(--text2)">${o.date}</td>
+          <td><span class="pill ${cls}">${label}</span></td>
+        </tr>`;
+      }).join('');
+    }
+
+    function renderCharts() {
+      renderRevenueChart();
+      renderDonut();
+      renderTopProducts();
+      renderOrdersTable();
+    }
+
+    renderCharts();
+    window.addEventListener('resize', renderRevenueChart);
+  </script>
+</body>
+</html>
